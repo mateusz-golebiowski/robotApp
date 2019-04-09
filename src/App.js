@@ -1,26 +1,42 @@
-import React, { Component } from 'react';
-import logo from './logo.svg';
+import React, {Component} from 'react';
 import './App.css';
 
+import nipplejs from 'nipplejs';
+import net from 'net';
+
+
 class App extends Component {
+  componentDidMount() {
+    const options = {
+        zone: document.getElementById('joyStick'),
+        color: 'blue'
+    };
+    const manager = nipplejs.create(options);
+    manager.on('move', function(evt, data) {
+        console.log(data);
+    });
+        console.log('mount it!');
+  };
+
   render() {
     return (
-      <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <p>
-            Edit <code>src/App.js</code> and save to reload.
-          </p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-          </a>
-        </header>
-      </div>
+        <div>
+            <div id='id' className="grid-container">
+                <div className="up">
+                    <button>up</button>
+                </div>
+                <div className="left">
+                    <button>left</button>
+                </div>
+                <div className="pad" id='joyStick'></div>
+                <div className="right">
+                    <button>right</button>
+                </div>
+                <div className="down">
+                    <button>down</button>
+                </div>
+            </div>
+        </div>
     );
   }
 }
