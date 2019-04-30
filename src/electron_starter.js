@@ -1,8 +1,13 @@
 // Modules to control application life and create native browser window
-const {app, BrowserWindow} = require('electron')
-const path = require('path');
-const url = require('url');
+const {dialog, app, BrowserWindow} = require('electron')
 
+const ipc = require('electron').ipcMain;
+
+
+
+ipc.on('move', (event,data)=>{
+  console.log(data);
+})
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow
@@ -16,7 +21,7 @@ function createWindow () {
       nodeIntegration: true
     }
   })
-
+  mainWindow.webContents.openDevTools()
   // and load the index.html of the app.
   mainWindow.loadURL('http://localhost:3000');
 

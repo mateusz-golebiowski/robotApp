@@ -28,9 +28,10 @@
  .pad { 
       grid-area: pad; 
       background-color: green;
-      position: relative;
+      position: static;
       width:200px;
       height:200px;
+      
  }
 
 
@@ -57,3 +58,30 @@
 .right > button {
     height:200px;
 }
+
+i {
+    border: solid black;
+    border-width: 0 3px 3px 0;
+    display: inline-block;
+    padding: 3px;
+  }
+  
+  .rightButton {
+    transform: rotate(-45deg);
+    -webkit-transform: rotate(-45deg);
+  }
+  
+  .leftButton {
+    transform: rotate(135deg);
+    -webkit-transform: rotate(135deg);
+  }
+  
+  .upButton {
+    transform: rotate(-135deg);
+    -webkit-transform: rotate(-135deg);
+  }
+  
+  .downButton {
+    transform: rotate(45deg);
+    -webkit-transform: rotate(45deg);
+  }
