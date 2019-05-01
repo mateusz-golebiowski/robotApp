@@ -1,21 +1,66 @@
 import React, {Component} from 'react';
+import Paper from '@material-ui/core/Paper';
+import TextField from '@material-ui/core/TextField';
+import Button from '@material-ui/core/Button';
+import PropTypes from 'prop-types';
+import CssBaseline from '@material-ui/core/CssBaseline';
+import { withStyles } from '@material-ui/core/styles';
+
 import './App.css';
 
 import nipplejs from 'nipplejs';
 import io from 'socket.io-client';
 
 
+
+const styles = theme => ({
+    
+    main: {
+        width: 'auto',
+        display: 'block', // Fix IE 11 issue.
+        
+        [theme.breakpoints.up(400 + theme.spacing.unit * 3 * 2)]: {
+          width: 400,
+          marginLeft: 'auto',
+          marginRight: 'auto',
+        },
+    },
+    button: {
+        margin: theme.spacing.unit,
+      },
+    form:{
+        width: '100%', // Fix IE 11 issue.
+        marginTop: theme.spacing.unit,
+    },
+    root: {
+        marginTop: theme.spacing.unit * 8,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        padding: `${theme.spacing.unit * 2}px ${theme.spacing.unit * 3}px ${theme.spacing.unit * 3}px`,
+    },
+    submit: {
+        marginTop: theme.spacing.unit * 3,
+    },
+  });
+
 class App extends Component {
+    
     constructor(props) {
         super(props);
         
-        this.state = {connected: false};
+        this.state = {
+            connected: false,
+            address: ""
+        };
  
         this.connect = this.connect.bind(this);
     }
   componentDidMount() {
     
         console.log('mount it!');
+        const x = document.getElementById("ControlPanel");
+        x.style.display = "none";
         
   };
 
@@ -28,8 +73,8 @@ class App extends Component {
     this.setState({connected: true});
 
 
-    console.log(e.target.ip.value);
-    const socket = io(e.target.ip.value);
+    console.log(this.state.address);
+    const socket = io(this.state.address);
     socket.emit('register controller');
 
     socket.on('connect_error', function() {
@@ -38,8 +83,8 @@ class App extends Component {
         socket.close();
     })
     socket.on('connect', function() {
-        const x = document.getElementsByClassName("grid-container")[0];
-        x.style.display = "grid";
+        const x = document.getElementById("ControlPanel");
+        x.style.display = "block";
     
         const y =  document.getElementById("form");
         y.style.display = "none";
@@ -75,32 +120,47 @@ class App extends Component {
     
     
   }
+
+  handleChange = name => event => {
+    this.setState({ [name]: event.target.value });
+  };
+
+
   render() {
-
+    const { classes } = this.props;
     return (
-        <div>
-            <form onSubmit={this.connect} id="form">
-                <label htmlFor="ip">Ip</label><input type="text" id="ip" name="ip"></input>
-            </form>
-            <div id='id' className="grid-container">
-                <div className="up">
-                    <button onClick={this.clicked}><i className="upButton"></i></button>
-                </div>
-                <div className="left">
-                    <button onClick={this.clicked}><i className="leftButton"></i></button>
-                </div>
+        <div className={classes.main}>
+        <CssBaseline />
+            <Paper className={classes.root}>
+            
+                <form onSubmit={this.connect} id="form" className={classes.form}> 
+                    <TextField
+                        id="standard-name"
+                        label="Server Address"
+                        className={classes.textField}
+                        value={this.state.address}
+                        onChange={this.handleChange('address')}
+                        margin="normal"
+                        required fullWidth
+                    />
+                    <Button variant="contained" color="primary" className={classes.button} type="submit">
+                        Connect
+                    </Button>
+                </form>
+                
+            </Paper>
+            <div id='ControlPanel'>
                 <div className="pad" id='joyStick'></div>
-                <div className="right">
-                    <button onClick={this.clicked}><i className="rightButton"></i></button>
-                </div>
-                <div className="down">
-                    <button onClick={this.clicked}><i className="downButton"></i></button>
-                </div>
             </div>
-
         </div>
     );
   }
 }
 
-export default App;
+
+App.propTypes = {
+    classes: PropTypes.object.isRequired,
+};
+  
+export default withStyles(styles)(App);
+  
