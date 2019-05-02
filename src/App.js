@@ -1,14 +1,16 @@
 import React, {Component} from 'react';
 import Paper from '@material-ui/core/Paper';
 import TextField from '@material-ui/core/TextField';
+import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 import PropTypes from 'prop-types';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import { withStyles } from '@material-ui/core/styles';
 
 import './App.css';
+import JoyStick from './JoyStick';
 
-import nipplejs from 'nipplejs';
+
 import io from 'socket.io-client';
 
 
@@ -51,69 +53,48 @@ class App extends Component {
         
         this.state = {
             connected: false,
-            address: ""
+            address: "",
+            devices: [],
+            page:0
         };
  
         this.connect = this.connect.bind(this);
+        
     }
   componentDidMount() {
     
         console.log('mount it!');
-        const x = document.getElementById("ControlPanel");
-        x.style.display = "none";
+        
         
   };
-
-  clicked(e) {
-      console.log('You clicked me');
-  }
 
   connect(e){
     e.preventDefault();
     this.setState({connected: true});
-
-
-    console.log(this.state.address);
     const socket = io(this.state.address);
-    socket.emit('register controller');
+    this.setState({socket: socket});
+    
 
     socket.on('connect_error', function() {
 
         console.log("Sorry, there seems to be an issue with the connection!");
         socket.close();
-    })
-    socket.on('connect', function() {
-        const x = document.getElementById("ControlPanel");
-        x.style.display = "block";
-    
-        const y =  document.getElementById("form");
-        y.style.display = "none";
-        const options = {
-            zone: document.getElementById('joyStick'),
-            color: 'blue',
-            mode: 'static',
-            position: {left: '50%', top: '50%'},
-        };
-        const manager = nipplejs.create(options);
-        manager.on('move', (evt, data) => {
-            console.log({
-                distance: data.distance,
-                angle: data.angle
+    });
 
-                });
-            socket.emit('move device', {
-                distance: data.distance,
-                angle: data.angle
+    socket.on('add device', data =>{
+        console.log(data);
+    });
 
-                });
-        
-        }).on('end', (evt, data)=>{
-            socket.emit('move device',  {
-                distance: data.distance,
-                angle: data.angle
+    socket.on('devices list', data =>{
+        console.log(data);
+        this.setState({devices: data});
+    });
 
-                });
-        });
+    socket.on('connect', () => {
+        socket.emit('register controller');
+        socket.emit('get devices');
+        this.setState({page: 1});
+
      });
 
 
@@ -125,33 +106,55 @@ class App extends Component {
     this.setState({ [name]: event.target.value });
   };
 
+  handleMove = data =>{
+      console.log(data);
+        this.state.socket.emit('move device', {
+        distance: data.distance,
+        angle: data.angle
+
+        });
+  }
 
   render() {
     const { classes } = this.props;
+
+    let content = "";
+    if(this.state.page === 0 ){
+        content = 
+        <Paper className={classes.root}>
+        
+            <form onSubmit={this.connect} id="form" className={classes.form}> 
+                <Typography component="h1" variant="h5">
+                        Connect to the server
+                </Typography>
+                <TextField
+                    id="standard-name"
+                    label="Server Address"
+                    className={classes.textField}
+                    value={this.state.address}
+                    onChange={this.handleChange('address')}
+                    margin="normal"
+                    required fullWidth
+                />
+                <Button variant="contained" color="primary" className={classes.button} type="submit">
+                    Connect
+                </Button>
+            </form>
+            
+        </Paper>
+    }else if(this.state.page === 1 ){
+        content = 
+        <Paper className={classes.root}>
+            {this.state.devices.map(data =><h1>{data.id}</h1>)}
+        </Paper>
+    }else if(this.state.page === 2){
+        content = <JoyStick onMove={this.handleMove} />
+    }
     return (
         <div className={classes.main}>
         <CssBaseline />
-            <Paper className={classes.root}>
+            {content}
             
-                <form onSubmit={this.connect} id="form" className={classes.form}> 
-                    <TextField
-                        id="standard-name"
-                        label="Server Address"
-                        className={classes.textField}
-                        value={this.state.address}
-                        onChange={this.handleChange('address')}
-                        margin="normal"
-                        required fullWidth
-                    />
-                    <Button variant="contained" color="primary" className={classes.button} type="submit">
-                        Connect
-                    </Button>
-                </form>
-                
-            </Paper>
-            <div id='ControlPanel'>
-                <div className="pad" id='joyStick'></div>
-            </div>
         </div>
     );
   }
