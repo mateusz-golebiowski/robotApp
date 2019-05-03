@@ -1,14 +1,26 @@
 import React, {Component} from 'react';
 import Paper from '@material-ui/core/Paper';
 import TextField from '@material-ui/core/TextField';
+
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogTitle from '@material-ui/core/DialogTitle';
+
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
+import List from '@material-ui/core/List';
+import ListItem from '@material-ui/core/ListItem';
+
+
 import PropTypes from 'prop-types';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import { withStyles } from '@material-ui/core/styles';
 
 import './App.css';
 import JoyStick from './JoyStick';
+import Device from './Device';
 
 
 import io from 'socket.io-client';
@@ -21,8 +33,8 @@ const styles = theme => ({
         width: 'auto',
         display: 'block', // Fix IE 11 issue.
         
-        [theme.breakpoints.up(400 + theme.spacing.unit * 3 * 2)]: {
-          width: 400,
+        [theme.breakpoints.up(700 + theme.spacing.unit * 3 * 2)]: {
+          width: 700,
           marginLeft: 'auto',
           marginRight: 'auto',
         },
@@ -44,6 +56,9 @@ const styles = theme => ({
     submit: {
         marginTop: theme.spacing.unit * 3,
     },
+    list: {
+        width: '100%',
+    }
   });
 
 class App extends Component {
@@ -55,7 +70,11 @@ class App extends Component {
             connected: false,
             address: "",
             devices: [],
-            page:0
+            page:0,
+            selectedIndex: -1,
+            password: null,
+            deviceId: null,
+            openPassword: false,
         };
  
         this.connect = this.connect.bind(this);
@@ -97,6 +116,18 @@ class App extends Component {
 
      });
 
+     socket.on('update status', (data) => {
+        console.log(data);
+        let x = this.state.devices;
+        x.forEach((item, index)=>{
+            if(item.deviceId === data.deviceId){
+                x[index].status = data.status;
+            }
+        });
+        this.setState({devices: x});
+
+     });
+     
 
     
     
@@ -115,6 +146,43 @@ class App extends Component {
         });
   }
 
+  handleClickOpen = () => {
+    this.setState({ openPassword: true });
+    
+  };
+
+  handleClose = () => {
+    this.setState({ password:null });
+
+    this.setState({ openPassword: false });
+  };
+  handleConnect = () => {
+    this.setState({ openPassword: false });
+    const data = {
+        deviceId: this.state.deviceId,
+        password: this.state.password
+    }
+    this.state.socket.emit('control device',data);
+  };
+
+  handleDeviceListItemClick = (event, index, idDevice) => {
+
+    this.setState({ selectedIndex: index });
+    this.setState({ deviceId: idDevice });
+    if(this.state.devices[index].passwordProtected){
+        this.handleClickOpen();
+    }else{
+        const data = {
+            deviceId: this.state.devicesId,
+            password: null
+        }
+        this.state.socket.emit('control device',data);
+    }
+        
+    
+    
+
+  };
   render() {
     const { classes } = this.props;
 
@@ -145,14 +213,70 @@ class App extends Component {
     }else if(this.state.page === 1 ){
         content = 
         <Paper className={classes.root}>
-            {this.state.devices.map(data =><h1>{data.id}</h1>)}
+            <List className={classes.list}>
+                
+                    {this.state.devices.map((data, index) =>
+                    {
+                        if(data.status==='idle'){
+                            return (<ListItem
+                            button
+                            selected={this.state.selectedIndex === index}
+                            onClick={event => this.handleDeviceListItemClick(event, index, data.id)}
+                        >
+                            <Device key={index} id={data.id} name={data.name} password={data.passwordProtected}/>
+                        </ListItem>)
+                        }else{
+                            return (<ListItem
+                            button
+                            selected={this.state.selectedIndex === index}
+                            
+                        >
+                            <Device key={index} id={data.id} name={data.name} password={data.passwordProtected}/>
+                        </ListItem>)
+                            
+                        }
+                    })}
+                         
+            </List>
+            <Dialog
+                open={this.state.openPassword}
+                onClose={this.handleClose}
+                aria-labelledby="form-dialog-title"
+            >
+          <DialogTitle id="form-dialog-title">Password</DialogTitle>
+          <DialogContent>
+            <DialogContentText>
+              To connect to this device you need a password
+            </DialogContentText>
+            <TextField
+              autoFocus
+              margin="dense"
+              id="password"
+              label="Password"
+              type="password"
+              onChange={this.handleChange('password')}
+              fullWidth
+            />
+          </DialogContent>
+          <DialogActions>
+          
+            <Button onClick={this.handleClose} color="primary">
+              Cancel
+            </Button>
+            <Button onClick={this.handleConnect} color="primary">
+              Connect
+            </Button>
+          </DialogActions>
+        </Dialog>
         </Paper>
     }else if(this.state.page === 2){
         content = <JoyStick onMove={this.handleMove} />
     }
+
     return (
         <div className={classes.main}>
         <CssBaseline />
+        
             {content}
             
         </div>
