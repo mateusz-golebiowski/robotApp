@@ -21,7 +21,7 @@ import { withStyles } from '@material-ui/core/styles';
 import './App.css';
 import JoyStick from './JoyStick';
 import Device from './Device';
-
+import ErrorDialog from './ErrorDialog';
 
 import io from 'socket.io-client';
 
@@ -33,8 +33,8 @@ const styles = theme => ({
         width: 'auto',
         display: 'block', // Fix IE 11 issue.
         
-        [theme.breakpoints.up(700 + theme.spacing.unit * 3 * 2)]: {
-          width: 700,
+        [theme.breakpoints.up(800 + theme.spacing.unit * 3 * 2)]: {
+          width: '95%',
           marginLeft: 'auto',
           marginRight: 'auto',
         },
@@ -52,6 +52,7 @@ const styles = theme => ({
         flexDirection: 'column',
         alignItems: 'center',
         padding: `${theme.spacing.unit * 2}px ${theme.spacing.unit * 3}px ${theme.spacing.unit * 3}px`,
+        
     },
     submit: {
         marginTop: theme.spacing.unit * 3,
@@ -75,9 +76,11 @@ class App extends Component {
             password: null,
             deviceId: null,
             openPassword: false,
+            openErrorDialog: false,
         };
  
         this.connect = this.connect.bind(this);
+        
         
     }
   componentDidMount() {
@@ -94,9 +97,10 @@ class App extends Component {
     this.setState({socket: socket});
     
 
-    socket.on('connect_error', function() {
+    socket.on('connect_error', () => {
 
         console.log("Sorry, there seems to be an issue with the connection!");
+        this.handleOpenErrorDialog();
         socket.close();
     });
 
@@ -104,6 +108,17 @@ class App extends Component {
         console.log(data);
     });
 
+    socket.on('validation result', data =>{
+      if(data.result){
+        this.state.socket.emit('control device',{
+          deviceId: this.state.deviceId,
+          password: this.state.password
+        });
+        this.setState({page: 2});
+      }
+      else
+        this.handleOpenErrorDialog();
+    });
     socket.on('devices list', data =>{
         console.log(data);
         this.setState({devices: data});
@@ -146,6 +161,16 @@ class App extends Component {
         });
   }
 
+  handleCloseErrorDialog= () => {
+    this.setState({ openErrorDialog: false });
+    
+  };
+
+  handleOpenErrorDialog= () => {
+    this.setState({ openErrorDialog: true });
+    
+  };
+
   handleClickOpen = () => {
     this.setState({ openPassword: true });
     
@@ -162,7 +187,9 @@ class App extends Component {
         deviceId: this.state.deviceId,
         password: this.state.password
     }
-    this.state.socket.emit('control device',data);
+
+    this.state.socket.emit('validate password',data);
+    
   };
 
   handleDeviceListItemClick = (event, index, idDevice) => {
@@ -173,10 +200,12 @@ class App extends Component {
         this.handleClickOpen();
     }else{
         const data = {
-            deviceId: this.state.devicesId,
+            deviceId: this.state.devices[index].id,
             password: null
         }
+
         this.state.socket.emit('control device',data);
+        this.setState({page: 2});
     }
         
     
@@ -208,7 +237,8 @@ class App extends Component {
                     Connect
                 </Button>
             </form>
-            
+            <ErrorDialog open={this.state.openErrorDialog} onClose={this.handleCloseErrorDialog}/>
+
         </Paper>
     }else if(this.state.page === 1 ){
         content = 
@@ -268,9 +298,11 @@ class App extends Component {
             </Button>
           </DialogActions>
         </Dialog>
+
+        <ErrorDialog open={this.state.openErrorDialog} onClose={this.handleCloseErrorDialog}/>
         </Paper>
     }else if(this.state.page === 2){
-        content = <JoyStick onMove={this.handleMove} />
+        content = <div><Paper className={classes.root}></Paper><JoyStick onMove={this.handleMove} /></div>
     }
 
     return (
