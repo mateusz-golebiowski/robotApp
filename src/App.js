@@ -22,7 +22,7 @@ import './App.css';
 import JoyStick from './JoyStick';
 import Device from './Device';
 import ErrorDialog from './ErrorDialog';
-
+import Camera from './Camera';
 import io from 'socket.io-client';
 
 
@@ -153,12 +153,7 @@ class App extends Component {
   };
 
   handleMove = data =>{
-      console.log(data);
-        this.state.socket.emit('move device', {
-        distance: data.distance,
-        angle: data.angle
-
-        });
+        this.state.socket.emit('move device', data);
   }
 
   handleCloseErrorDialog= () => {
@@ -302,7 +297,7 @@ class App extends Component {
         <ErrorDialog open={this.state.openErrorDialog} onClose={this.handleCloseErrorDialog}/>
         </Paper>
     }else if(this.state.page === 2){
-        content = <div><Paper className={classes.root}></Paper><JoyStick onMove={this.handleMove} /></div>
+        content = <div><Camera /><JoyStick onMove={this.handleMove} /></div>
     }
 
     return (
