@@ -37,6 +37,11 @@ const styles = theme => ({
     button: {
         margin: theme.spacing.unit,
     },
+    buttonBack:{
+        margin: theme.spacing.unit*12,
+        marginLeft: '80%',
+        
+    }, 
     form: {
         width: '100%', // Fix IE 11 issue.
         marginTop: theme.spacing.unit,
@@ -198,6 +203,19 @@ class App extends Component {
             this.setState({page: 2});
         }
     };
+    handleSignOut = () => {
+        this.state.socket.close();
+        this.setState({page: 0});
+        this.setState({address: ""});
+        this.setState({password: null});
+    }
+    handleButtonBack = () => {
+        this.state.socket.emit('disable control');
+        this.setState({page: 1});
+        this.setState({password: null});
+        this.setState({deviceId: null});
+        this.setState({selectedIndex: -1});
+    }
 
     render() {
         const { classes } = this.props;
@@ -218,7 +236,13 @@ class App extends Component {
                         margin="normal"
                         required fullWidth
                     />
-                    <Button variant="contained" color="primary" className={classes.button} type="submit">
+                    <Button 
+                        variant="contained" 
+                        color="primary" 
+                        className={classes.button} 
+                        type="submit" 
+                        message="Can't connect to the server"
+                    >
                         Connect
                     </Button>
                 </form>
@@ -269,23 +293,29 @@ class App extends Component {
                     }
                             
                 </List>
-                
-            <PasswordDialog 
-                open={this.state.openPasswordDialog} 
-                onClose={this.handleClosePasswordDialog} 
-                onConnect={this.handlePasswordSet}
-            />
-            <ErrorDialog 
-                open={this.state.openErrorDialog}
-                onClose={this.handleCloseErrorDialog}
-            />
+                <Button  onClick={this.handleSignOut} variant="contained" color="primary" className={classes.button}>
+                    Sign Out
+                </Button>
+                <PasswordDialog 
+                    open={this.state.openPasswordDialog} 
+                    onClose={this.handleClosePasswordDialog} 
+                    onConnect={this.handlePasswordSet}
+                />
+                <ErrorDialog 
+                    open={this.state.openErrorDialog}
+                    onClose={this.handleCloseErrorDialog}
+                    message="Wrong password"
+                />
             </Paper>
         }else if(this.state.page === 2){
             content = 
-            <div>
+            <>
                 <Camera camera={this.state.camera}/>
                 <JoyStick onMove={this.handleMove} />
-            </div>
+                <Button  onClick={this.handleButtonBack} variant="contained" color="primary" className={classes.buttonBack}>
+                    Back
+                </Button>
+            </>
         }
 
         return (
