@@ -25,45 +25,41 @@ class Device extends Component {
         this.handleCloseErrorDialog = this.handleCloseErrorDialog.bind(this);
 
     }
-  componentDidMount() {
-    console.log('mount it!');
-    
-  };
+    componentDidMount() {
+        console.log('ErrorDialog is ready!');
+        
+    };
 
-  handleCloseErrorDialog = () => {
-    
-    this.props.onClose();               
-}
-  
-  
-  render() {
-    const { classes } = this.props;
-    return (
-        <div>
-            
-            <Dialog
-                open={this.props.open}
-                onClose={this.handleCloseErrorDialog}
-                aria-labelledby="alert-dialog-title"
-                aria-describedby="alert-dialog-description"
-            >
-            <DialogTitle id="alert-dialog-title">{"Error"}</DialogTitle>
-            <DialogContent>
-              <DialogContentText id="alert-dialog-description">
-                Cannot connect to the server
-              </DialogContentText>
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={this.handleCloseErrorDialog} color="primary" autoFocus>
-                Ok
-              </Button>
-            </DialogActions>
-          </Dialog>
-      </div>
-    );
-  }
-}
+    handleCloseErrorDialog = () => { 
+        this.props.onClose();               
+    }
 
+    render() {
+        const { classes } = this.props;
+        return (
+            <div>
+                <Dialog
+                    open={this.props.open}
+                    onClose={this.handleCloseErrorDialog}
+                    aria-labelledby="alert-dialog-title"
+                    aria-describedby="alert-dialog-description"
+                >
+                    <DialogTitle id="alert-dialog-title">{"Error"}</DialogTitle>
+                    <DialogContent>
+                        <DialogContentText id="alert-dialog-description">
+                            Cannot connect to the server
+                        </DialogContentText>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={this.handleCloseErrorDialog} color="primary" autoFocus>
+                            Ok
+                        </Button>
+                    </DialogActions>
+                </Dialog>
+            </div>
+        );
+    }
+}
 
 Device.propTypes = {
     classes: PropTypes.object.isRequired,

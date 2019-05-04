@@ -15,31 +15,29 @@ const styles = theme => ({
 class Device extends Component {
     constructor(props) {
         super(props);
-        
         this.state = {
             
         };
  
     }
-  componentDidMount() {
-    console.log('mount it!');
-    
-  };
 
-  
-  render() {
-    const { classes } = this.props;
-    return (
-        <div>
-            <ListItemIcon>
-                <InboxIcon />
-            </ListItemIcon>
-            <ListItemText primary={this.props.name} />
-      </div>
-    );
-  }
+    componentDidMount() {
+        console.log('Device is ready');
+        
+    };
+
+    render() {
+        const { classes } = this.props;
+        return (
+            <div>
+                <ListItemIcon>
+                    <InboxIcon />
+                </ListItemIcon>
+                <ListItemText primary={this.props.name} />
+            </div>
+        );
+    }
 }
-
 
 Device.propTypes = {
     classes: PropTypes.object.isRequired,

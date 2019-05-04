@@ -28,18 +28,16 @@ class Camera extends Component {
  
     }
 
-  componentDidMount() {
-    console.log('mount it!');
-    
+    componentDidMount() {
+        console.log('Camera is ready!');
+    };
 
-  };
-
-  render() {
-    const { classes } = this.props;
-    return (
-        <Paper className={classes.Camera}>tu będzie kamera</Paper>
-    );
-  }
+    render() {
+        const { classes } = this.props;
+        return (
+            <Paper className={classes.Camera}>tu będzie kamera </Paper>
+        );
+    }
 }
 
 Camera.propTypes = {
