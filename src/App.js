@@ -54,7 +54,9 @@ const styles = theme => ({
     },
     list: {
         width: '100%',
-    }
+        display: 'inline',
+        backgroundColor: theme.palette.background.paper,
+      },
   });
 
 class App extends Component {
@@ -132,10 +134,11 @@ class App extends Component {
 
         });
 
-        socket.on('update status', (data) => {
+        socket.on('update status', data => {
             let x = this.state.devices;
+            
             x.forEach((item, index)=>{
-                if(item.deviceId === data.deviceId){
+                if(item.id === data.id){
                     x[index].status = data.status;
                 }
             });
@@ -238,7 +241,10 @@ class App extends Component {
                                     key={index} 
                                     id={data.id} 
                                     name={data.name} 
+                                    desc={data.description}
+                                    cam={data.cameraAvailable}
                                     password={data.passwordProtected}
+                                    status={data.status}
                                 />
                             </ListItem>)
                         }else{
@@ -251,7 +257,10 @@ class App extends Component {
                                     key={index} 
                                     id={data.id} 
                                     name={data.name} 
+                                    desc={data.description}
+                                    cam={data.cameraAvailable}
                                     password={data.passwordProtected}
+                                    status={data.status}
                                 />
                             </ListItem>)
                                 

@@ -3,13 +3,17 @@ import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
-import InboxIcon from '@material-ui/icons/Inbox';
+import VideocamIcon from '@material-ui/icons/Videocam';
+import VpnKeyIcon from '@material-ui/icons/VpnKey';
+import ToysIcon from '@material-ui/icons/Toys';
+import LockIcon from '@material-ui/icons/Lock';
+import Avatar from '@material-ui/core/Avatar';
 import { withStyles } from '@material-ui/core/styles';
 
 
 const styles = theme => ({
 
-    
+
 });
 
 class Device extends Component {
@@ -28,13 +32,31 @@ class Device extends Component {
 
     render() {
         const { classes } = this.props;
+        
         return (
-            <div>
+            <>
+                <Avatar>
+                    <ToysIcon />
+                </Avatar>
+             
+                <ListItemText primary={this.props.name} secondary={this.props.desc}/>
+                {this.props.password && 
                 <ListItemIcon>
-                    <InboxIcon />
+                    <VpnKeyIcon />
                 </ListItemIcon>
-                <ListItemText primary={this.props.name} />
-            </div>
+                }
+                {this.props.cam &&
+                <ListItemIcon>
+                    <VideocamIcon />
+                </ListItemIcon>
+                }
+                {this.props.status === 'busy' &&
+                    <ListItemIcon>
+                        <LockIcon />
+                    </ListItemIcon>
+                }
+                </>
+            
         );
     }
 }
