@@ -9,6 +9,7 @@
     "nipplejs": "^0.8.1",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
+    "react-key-handler": "^1.2.0-beta.3",
     "react-nipple": "^1.0.1",
     "react-scripts": "2.1.8",
     "socket.io": "^2.2.0"
