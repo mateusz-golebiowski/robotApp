@@ -79,6 +79,7 @@ class App extends Component {
             deviceId: null,
             openPasswordDialog: false,
             openErrorDialog: false,
+            errorMessage: null,
             camera: false,
             
         };
@@ -92,12 +93,14 @@ class App extends Component {
 
     connect(e) {
         e.preventDefault();
+        console.log(this.state.address);
         this.setState({connected: true});
         const socket = io(this.state.address);
         this.setState({socket: socket});
         
         socket.on('connect_error', () => {
-            this.handleOpenErrorDialog();
+            this.handleOpenErrorDialog("Connection error");
+            this.setState({page: 0});
             socket.close();
         });
 
@@ -109,6 +112,12 @@ class App extends Component {
 
         socket.on('remove device', data => {
             let x = this.state.devices;
+            if(this.state.deviceId === data){
+                this.setState({page: 1});
+                this.setState({password: null});
+                this.setState({deviceId: null});
+                this.handleOpenErrorDialog("Disconnected from the device");
+            }
             x.forEach((item, index) => {
                 if(item.id === data)
                 x.splice(index);
@@ -125,7 +134,7 @@ class App extends Component {
                 this.setState({page: 2});
             }
             else
-                this.handleOpenErrorDialog();
+                this.handleOpenErrorDialog("Wrong password");
         });
         socket.on('devices list', data =>{
             console.log(data);
@@ -141,7 +150,6 @@ class App extends Component {
 
         socket.on('update status', data => {
             let x = this.state.devices;
-            
             x.forEach((item, index)=>{
                 if(item.id === data.id){
                     x[index].status = data.status;
@@ -163,8 +171,10 @@ class App extends Component {
         this.setState({ openErrorDialog: false });
     };
 
-    handleOpenErrorDialog = () => {
+    handleOpenErrorDialog = (error) => {
+        this.setState({ errorMessage: error });
         this.setState({ openErrorDialog: true });
+        
     };
 
     handleClosePasswordDialog = () => {
@@ -246,7 +256,6 @@ class App extends Component {
                         Connect
                     </Button>
                 </form>
-                <ErrorDialog open={this.state.openErrorDialog} onClose={this.handleCloseErrorDialog}/>
             </Paper>
         }else if(this.state.page === 1 ){
             content = 
@@ -301,11 +310,6 @@ class App extends Component {
                     onClose={this.handleClosePasswordDialog} 
                     onConnect={this.handlePasswordSet}
                 />
-                <ErrorDialog 
-                    open={this.state.openErrorDialog}
-                    onClose={this.handleCloseErrorDialog}
-                    message="Wrong password"
-                />
             </Paper>
         }else if(this.state.page === 2){
             content = 
@@ -323,7 +327,11 @@ class App extends Component {
             <CssBaseline />
             
                 {content}
-                
+                <ErrorDialog 
+                    open={this.state.openErrorDialog} 
+                    onClose={this.handleCloseErrorDialog}
+                    message={this.state.errorMessage}
+                />
             </div>
         );
     }

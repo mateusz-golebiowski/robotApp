@@ -3,6 +3,8 @@ const {dialog, app, BrowserWindow} = require('electron')
 
 const ipc = require('electron').ipcMain;
 
+const isDev = require('electron-is-dev');
+const path = require('path');
 
 
 ipc.on('move', (event,data)=>{
@@ -23,7 +25,8 @@ function createWindow () {
   })
   mainWindow.webContents.openDevTools()
   // and load the index.html of the app.
-  mainWindow.loadURL('http://localhost:3000');
+  mainWindow.loadURL(isDev ? 'http://localhost:3000' : `file://${path.join(__dirname, '../build/index.html')}`);
+ 
 
   // Open the DevTools.
   // mainWindow.webContents.openDevTools()

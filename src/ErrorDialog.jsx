@@ -47,7 +47,7 @@ class Device extends Component {
                     <DialogTitle id="alert-dialog-title">{"Error"}</DialogTitle>
                     <DialogContent>
                         <DialogContentText id="alert-dialog-description">
-                            Cannot connect to the server
+                            {this.props.message}
                         </DialogContentText>
                     </DialogContent>
                     <DialogActions>
