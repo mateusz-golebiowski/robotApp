@@ -105,9 +105,9 @@ class JoyStick extends Component {
         else if(event.key === 's')
             move= { speedLeft: 255, speedRight: 255, direction: "down" };
         else if(event.key === 'a')
-            move= { speedLeft: 255, speedRight: 0, direction: "up" };
-        else if(event.key === 'd')
             move= { speedLeft: 0, speedRight: 255, direction: "up" };
+        else if(event.key === 'd')
+            move= { speedLeft: 255, speedRight: 0, direction: "up" };
 
         if(!this.isEqual(this.state.lastOutput,move)){
             console.log(move);

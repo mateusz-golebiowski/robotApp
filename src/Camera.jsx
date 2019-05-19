@@ -35,7 +35,7 @@ class Camera extends Component {
     render() {
         const { classes } = this.props;
         return (
-            <Paper className={classes.Camera}>tu będzie kamera </Paper>
+            <Paper className={classes.Camera}></Paper>
         );
     }
 }
